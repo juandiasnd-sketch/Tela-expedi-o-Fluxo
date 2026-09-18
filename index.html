@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Expedição — NAUBER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#eef2ef;
@@ -303,6 +306,162 @@
   .status-chip.agu{ background:#fdf1dc; color:#8a5a06; }
   .status-chip.fat{ background:#e5edfc; color:#1d4ed8; }
   .status-chip.out{ background:#eef1ef; color:var(--text-faint); }
+
+
+  /* ======================================================================
+     VISUAL alinhado ao Painel Administrativo
+     ====================================================================== */
+  :root{
+    --bg:#17181C;
+    --panel:#202126;
+    --panel-2:#2C2F38;
+    --border:#2C2E34;
+    --green:#128937;
+    --green-dark:#128937;
+    --green-bright:#8FE3A6;
+    --green-glow:rgba(18,137,55,.16);
+    --text:#FFFFFF;
+    --text-dim:#A9AEB8;
+    --text-faint:#6B6F78;
+    --red:#E0574A;
+    --amber:#E0A83D;
+    --sans:'Inter',system-ui,sans-serif;
+    --cond:'Barlow Condensed','Inter',sans-serif;
+  }
+  html,body{ background:var(--bg); color:var(--text); font-family:var(--sans); }
+  body{ overflow:hidden; }
+  .topbar{
+    background:var(--bg); border-bottom:1px solid var(--border); box-shadow:none;
+    padding:clamp(14px,1.8vh,22px) clamp(20px,2.4vw,44px); gap:20px;
+  }
+  .brand img{ height:clamp(28px,3.6vh,44px); filter:brightness(0) invert(1); }
+  .titleblock{ text-align:right; display:flex; flex-direction:column; align-items:flex-end; }
+  .titleblock h1{ font-family:var(--cond); font-size:clamp(16px,1.7vw,24px); letter-spacing:.02em; line-height:1.1; }
+  .titleblock .by{ font-family:var(--sans); color:var(--text-faint); font-weight:400; font-size:.48em; }
+  .titleblock .updated{ justify-content:flex-end; font-size:clamp(11px,.9vw,13px); color:var(--text-faint); }
+  .topbar .dot{ width:6px; height:6px; background:var(--green); box-shadow:none; }
+  .topbar .dot.stale{ background:var(--amber); box-shadow:none; }
+  .topbar .dot.err{ background:var(--red); box-shadow:none; }
+  .clockblock{ min-width:160px; }
+  .clockblock .time{ font-family:var(--cond); font-size:clamp(22px,2.4vw,34px); font-weight:700; }
+  .clockblock .date{ font-family:var(--sans); font-size:clamp(10px,.8vw,12px); color:var(--text-faint); font-weight:500; }
+
+  .content{
+    padding:clamp(14px,1.8vh,22px) clamp(20px,2.4vw,44px) clamp(10px,1.4vh,16px);
+    gap:clamp(12px,1.4vw,18px); overflow-y:auto;
+  }
+  .dashboard-grid{
+    flex:1 1 auto; min-height:0; display:grid;
+    grid-template-columns:1.5fr 1fr 1fr;
+    grid-template-rows:minmax(210px,1fr) minmax(210px,1fr) minmax(145px,.64fr);
+    grid-template-areas:
+      "nf total sep"
+      "nf agu fat"
+      "urg attention attention";
+    gap:clamp(14px,1.6vw,22px);
+  }
+  #cardNFs{grid-area:nf;} #cardTotal{grid-area:total;} #cardSeparacao{grid-area:sep;}
+  #cardAguardando{grid-area:agu;} #cardFaturado{grid-area:fat;} #cardUrgentes{grid-area:urg;}
+  #attentionCard{grid-area:attention;}
+  .grid-primary,.grid-secondary,.grid-attention{display:contents;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:clamp(18px,2vw,26px) clamp(16px,1.8vw,24px) clamp(16px,1.8vw,22px);
+    box-shadow:none; overflow:hidden;
+  }
+  .card:hover{ transform:translateY(-1px); border-color:#3a3d44; box-shadow:0 10px 28px -12px rgba(0,0,0,.35); }
+  .card.card-block:hover{ border-color:var(--border); box-shadow:none; }
+  .pill{
+    align-self:center; background:var(--green); color:#fff; font-family:var(--cond); font-weight:700;
+    font-size:clamp(13px,1.15vw,18px); letter-spacing:.01em;
+    padding:clamp(7px,.9vh,11px) clamp(18px,1.8vw,30px); border-radius:999px;
+    margin-bottom:clamp(14px,1.8vh,22px); gap:8px;
+  }
+  .pill .dot{width:7px;height:7px;background:rgba(255,255,255,.65);}
+  .card.amber .pill{background:var(--green);color:#fff;} .card.amber .pill .dot{background:var(--amber);}
+  .card.red{border-color:var(--border);} .card.red .pill{background:var(--green);color:#fff;} .card.red .pill .dot{background:var(--red);}
+  .card.red:hover{border-color:#3a3d44;box-shadow:0 10px 28px -12px rgba(0,0,0,.35);}
+
+  .split{ flex:1 1 auto; align-items:center; gap:clamp(10px,1.3vw,20px); }
+  .split .metric{text-align:center;}
+  .split .metric .val{font-family:var(--cond);font-size:clamp(34px,3.6vw,58px);font-weight:700;color:var(--text);}
+  .split .metric .lbl{font-family:var(--sans);font-size:clamp(10px,.8vw,12px);color:var(--text-faint);font-weight:500;}
+  .split .divider{background:var(--border);}
+  .hint{font-size:clamp(9px,.7vw,11px);color:var(--text-faint);}
+
+  .card-hero{align-items:center;text-align:center;}
+  .bignum{font-family:var(--cond);font-size:clamp(48px,5vw,76px);font-weight:700;letter-spacing:.01em;}
+  .bignum small{color:var(--text-dim);font-weight:600;}
+  .sublabel{font-size:clamp(12px,1vw,15px);color:var(--text-dim);}
+  .hero-badge{background:var(--panel-2);border:0;color:var(--text-dim);margin-top:8px;font-size:clamp(11px,.85vw,13px);padding:5px 16px;}
+  .hero-badge strong{font-family:var(--cond);font-size:clamp(14px,1.2vw,18px);color:var(--text);}
+  .chart-title{font-size:clamp(10px,.8vw,12px);color:var(--text-faint);margin-top:clamp(10px,1.5vh,18px);margin-bottom:8px;}
+  .chart-bars{min-height:110px; gap:clamp(8px,1vw,16px); padding:0 clamp(6px,1vw,14px);}
+  .chart-val{font-size:clamp(11px,.9vw,14px);color:var(--text-dim);font-weight:600;}
+  .chart-bar{max-width:40px;border-radius:7px 7px 3px 3px;background:var(--panel-2);min-height:4px;}
+  .chart-col.current .chart-bar{background:var(--green);box-shadow:0 0 0 2px var(--green-glow);}
+  .chart-col.current .chart-val{color:var(--green-bright);}
+  .chart-lbl{font-size:clamp(9px,.75vw,11px);color:var(--text-faint);line-height:1.3;}
+  .chart-col.current .chart-lbl{color:var(--text-dim);font-weight:600;}
+
+  .attention-list{gap:10px;margin-top:0;overflow:auto;}
+  .attention-list li{font-size:clamp(12px,.95vw,14px);color:var(--text-dim);line-height:1.4;}
+  .attention-list li::before{width:7px;height:7px;background:var(--amber);}
+  .attention-list li.ok::before{background:var(--green);} .attention-list li.crit::before{background:var(--red);}
+
+  .footer-note{display:flex;align-items:center;gap:18px;font-size:clamp(10px,.8vw,12px);color:var(--text-faint);}
+  .footer-brand{margin-left:auto;}
+  .legend-dot{width:7px;height:7px;}
+
+  .errorbar{background:#2a1414;border-color:#5a2323;color:#ffb4b4;}
+
+  /* Modal escuro + tabela filtrável */
+  .overlay{background:rgba(0,0,0,.72);backdrop-filter:blur(3px);}
+  .modal{background:var(--panel);border-color:var(--border);border-radius:14px;max-width:min(1320px,96vw);max-height:88vh;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.45);}
+  .modal-head h2{font-family:var(--cond);font-size:22px;color:var(--text);}
+  .modal-head .count{font-family:var(--sans);color:var(--text-faint);font-size:12px;}
+  .closebtn{color:var(--text-dim);} .closebtn:hover{color:#fff;background:var(--panel-2);}
+  .tablewrap{border-color:var(--border);background:#1b1c20;}
+  table{color:var(--text);font-size:12.5px;}
+  thead th{background:#26282e;color:var(--text-dim);border-color:var(--border);cursor:pointer;user-select:none;padding:11px 12px;z-index:2;}
+  thead th:hover, thead th:focus{color:#fff;background:#30333a;outline:none;}
+  thead th.filter-active{color:var(--green-bright);}
+  .th-filter-icon{margin-left:6px;font-size:10px;color:var(--text-faint);}
+  thead th.filter-active .th-filter-icon{color:var(--green-bright);}
+  tbody td{border-color:var(--border);color:#e5e7eb;}
+  tbody tr:hover{background:#25272d;}
+  .empty-row td{color:var(--text-faint);}
+  .status-chip.sep{background:rgba(18,137,55,.16);color:#8FE3A6;}
+  .status-chip.agu{background:rgba(224,168,61,.14);color:var(--amber);}
+  .status-chip.fat{background:rgba(59,130,246,.16);color:#93b4ff;}
+  .status-chip.out{background:var(--panel-2);color:var(--text-faint);}
+
+  .filter-popover{position:fixed;z-index:120;background:#202126;border:1px solid #3a3d44;border-radius:10px;box-shadow:0 18px 45px rgba(0,0,0,.45);width:260px;max-height:360px;padding:10px;display:none;}
+  .filter-popover.open{display:block;}
+  .filter-title{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;margin:2px 2px 8px;}
+  .filter-search{width:100%;border:1px solid #3a3d44;background:#17181c;color:#fff;border-radius:7px;padding:8px 9px;font-family:var(--sans);font-size:12px;outline:none;}
+  .filter-search:focus{border-color:var(--green);}
+  .filter-options{max-height:210px;overflow:auto;margin:8px 0;padding:2px 0;}
+  .filter-option{display:flex;gap:8px;align-items:center;padding:5px 4px;font-size:12px;color:var(--text-dim);cursor:pointer;border-radius:5px;}
+  .filter-option:hover{background:#2a2c32;color:#fff;}
+  .filter-option input{accent-color:var(--green);}
+  .filter-actions{display:flex;gap:6px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:8px;}
+  .filter-btn{border:1px solid #3a3d44;background:#2a2c32;color:#ddd;border-radius:6px;padding:6px 9px;font-size:11px;cursor:pointer;}
+  .filter-btn:hover{color:#fff;border-color:#555a63}.filter-btn.primary{background:var(--green);border-color:var(--green);color:#fff;}
+  .filter-summary{font-size:11px;color:var(--text-faint);margin-right:auto;align-self:center;}
+
+  @media (max-width:1100px){
+    body{overflow:auto;height:auto;min-height:100vh;}
+    .content{overflow:visible;}
+    .dashboard-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto;grid-template-areas:"nf nf" "total sep" "agu fat" "urg attention";}
+  }
+  @media (max-width:680px){
+    .topbar{align-items:flex-start}.titleblock{order:3;width:100%;align-items:flex-start;text-align:left}.titleblock .updated{justify-content:flex-start}.clockblock{min-width:auto}
+    .dashboard-grid{grid-template-columns:1fr;grid-template-areas:"nf" "total" "sep" "agu" "fat" "urg" "attention";}
+    .card{min-height:180px}.card-hero{min-height:390px}.footer-brand{width:100%;margin-left:0}.footer-note{flex-wrap:wrap}
+  }
+
 </style>
 </head>
 <body>
@@ -322,10 +481,19 @@
   </div>
 
   <main class="content">
-
   <div class="errorbar" id="errorBar"></div>
 
-  <div class="grid-primary">
+  <section class="dashboard-grid">
+    <div class="card card-hero" id="cardNFs">
+      <div class="pill"><span class="dot"></span>Notas Fiscais — Mês</div>
+      <div class="bignum"><span id="nfMes">–</span><small> NFs</small></div>
+      <div class="sublabel">notas fiscais no mês</div>
+      <div class="hero-badge">hoje: <strong id="nfHoje">–</strong></div>
+      <div class="chart-title">Comparativo semanal · notas faturadas</div>
+      <div class="chart-bars" id="chartBars"></div>
+      <div class="hint">clique para detalhar ↗</div>
+    </div>
+
     <div class="card" id="cardTotal">
       <div class="pill"><span class="dot"></span>Total de Pedidos</div>
       <div class="split">
@@ -365,18 +533,6 @@
       </div>
       <div class="hint">clique para detalhar ↗</div>
     </div>
-  </div>
-
-  <div class="grid-secondary">
-    <div class="card card-top card-hero card-wide-3" id="cardNFs">
-      <div class="pill"><span class="dot"></span>Notas Fiscais — Mês</div>
-      <div class="bignum"><span id="nfMes">–</span><small> NFs</small></div>
-      <div class="sublabel">notas fiscais no mês</div>
-      <div class="hero-badge">hoje: <strong id="nfHoje">–</strong></div>
-      <div class="chart-title">Comparativo semanal · notas faturadas</div>
-      <div class="chart-bars" id="chartBars"></div>
-      <div class="hint">clique para detalhar ↗</div>
-    </div>
 
     <div class="card red" id="cardUrgentes">
       <div class="pill"><span class="dot"></span>Urgentes</div>
@@ -387,50 +543,44 @@
       </div>
       <div class="hint">clique para detalhar ↗</div>
     </div>
-  </div>
 
-  <div class="grid-attention">
-    <div class="card card-block attention-card no-click">
+    <div class="card card-block attention-card no-click" id="attentionCard">
       <div class="pill"><span class="dot"></span>Pontos de Atenção</div>
       <ul class="attention-list" id="attentionList"></ul>
     </div>
-  </div>
+  </section>
 
   <div class="footer-note">
-    <span><span class="legend-dot" style="background:#1f8a4c"></span> Em separação</span>
-    <span><span class="legend-dot" style="background:#b8790a"></span> Aguardando</span>
-    <span><span class="legend-dot" style="background:#1d4ed8"></span> Faturado</span>
+    <span><span class="legend-dot" style="background:var(--green)"></span>em separação / normal</span>
+    <span><span class="legend-dot" style="background:var(--amber)"></span>requer atenção</span>
+    <span><span class="legend-dot" style="background:var(--red)"></span>urgente</span>
     <span id="totalRowsNote"></span>
+    <span class="footer-brand">Nauber Máquinas — EXPEDIÇÃO</span>
   </div>
-
-  <div style="margin-top:8px; font-size:10.5px; color:var(--text-faint);">
-    Nauber Máquinas — Painel de Expedição
-  </div>
-
-  </main>
+</main>
 
   <!-- Modal -->
 
   <div class="overlay" id="overlay">
     <div class="modal">
       <div class="modal-head">
-        <h2 id="modalTitle">Pedidos <span class="count" id="modalCount"></span></h2>
+        <h2><span id="modalTitle">Pedidos</span> <span class="count" id="modalCount"></span></h2>
         <button class="closebtn" id="closeModal">✕</button>
       </div>
       <div class="tablewrap">
         <table>
           <thead>
             <tr>
-              <th>DAV</th>
-              <th>Cliente</th>
-              <th>Tipo Separação</th>
-              <th>Status</th>
-              <th>Resp.</th>
-              <th>Hora Lib</th>
-              <th>Hora Concl</th>
-              <th>Hora Exp</th>
-              <th>N° NF</th>
-              <th>Transportadora</th>
+              <th data-col="dav" tabindex="0" title="Clique para filtrar">DAV<span class="th-filter-icon">⌄</span></th>
+              <th data-col="nomecli" tabindex="0" title="Clique para filtrar">Cliente<span class="th-filter-icon">⌄</span></th>
+              <th data-col="tipodeseparacao" tabindex="0" title="Clique para filtrar">Tipo Separação<span class="th-filter-icon">⌄</span></th>
+              <th data-col="__status" tabindex="0" title="Clique para filtrar">Status<span class="th-filter-icon">⌄</span></th>
+              <th data-col="__resp" tabindex="0" title="Clique para filtrar">Resp.<span class="th-filter-icon">⌄</span></th>
+              <th data-col="horalib" tabindex="0" title="Clique para filtrar">Hora Lib<span class="th-filter-icon">⌄</span></th>
+              <th data-col="horaconcl" tabindex="0" title="Clique para filtrar">Hora Concl<span class="th-filter-icon">⌄</span></th>
+              <th data-col="horaexp" tabindex="0" title="Clique para filtrar">Hora Exp<span class="th-filter-icon">⌄</span></th>
+              <th data-col="nnf" tabindex="0" title="Clique para filtrar">N° NF<span class="th-filter-icon">⌄</span></th>
+              <th data-col="transp" tabindex="0" title="Clique para filtrar">Transportadora<span class="th-filter-icon">⌄</span></th>
             </tr>
           </thead>
           <tbody id="modalBody"></tbody>
@@ -451,9 +601,56 @@
   var REFRESH_MS = 20000; // atualização automática a cada 20s
   var THRESHOLD_HOURS = 24; // pedido "Em Separação"/"Aguardando" parado há mais que isso = urgente
 
+  function gvizUrl(){
+    // Usa o JSON do Google Visualization em vez do CSV.
+    // O CSV respeita a FORMATACAO VISUAL da planilha; por isso uma data exibida como
+    // "18/09 08:29" perde o ano, mesmo que internamente seja 18/09/2026.
+    // No JSON, o valor bruto vem como Date(2026,8,18,8,29,56), preservando o ano real.
+    return "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
+      "/gviz/tq?tqx=out:json&headers=0&gid=" + SHEET_GID + "&_=" + Date.now();
+  }
+
   function csvUrl(){
-    // "&_=" + timestamp quebra qualquer cache (do navegador ou do Google) para garantir dado sempre fresco
-    return "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:csv&gid=" + SHEET_GID + "&_=" + Date.now();
+    // Fallback somente se o endpoint JSON falhar por algum motivo.
+    return "https://docs.google.com/spreadsheets/d/" + SHEET_ID +
+      "/gviz/tq?tqx=out:csv&gid=" + SHEET_GID + "&_=" + Date.now();
+  }
+
+  function parseGvizPayload(text){
+    var start = text.indexOf('{');
+    var end = text.lastIndexOf('}');
+    if (start === -1 || end === -1 || end <= start) throw new Error('Resposta GViz invalida.');
+    return JSON.parse(text.slice(start, end + 1));
+  }
+
+  function gvizCellToText(cell){
+    if (!cell || cell.v === null || cell.v === undefined) return '';
+    var v = cell.v;
+
+    if (typeof v === 'string'){
+      var m = v.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})(?:,(\d{1,2}),(\d{1,2})(?:,(\d{1,2}))?)?\)$/);
+      if (m){
+        var year = parseInt(m[1],10);
+        var month = parseInt(m[2],10) + 1;
+        var day = parseInt(m[3],10);
+        var hh = m[4] ? parseInt(m[4],10) : 0;
+        var mi = m[5] ? parseInt(m[5],10) : 0;
+        var ss = m[6] ? parseInt(m[6],10) : 0;
+        return pad(day) + '/' + pad(month) + '/' + year + ' ' + pad(hh) + ':' + pad(mi) + ':' + pad(ss);
+      }
+      return v;
+    }
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (typeof v === 'number') return String(v);
+    return cell.f != null ? String(cell.f) : String(v);
+  }
+
+  function gvizToRows(payload){
+    if (!payload || payload.status === 'error') throw new Error('A planilha retornou erro no Google Visualization.');
+    if (!payload.table || !Array.isArray(payload.table.rows)) throw new Error('Nao encontrei linhas na resposta da planilha.');
+    return payload.table.rows.map(function(r){
+      return (r.c || []).map(gvizCellToText);
+    });
   }
 
   // ---------- CLOCK ----------
@@ -706,11 +903,11 @@
     return isNaN(d.getTime()) ? null : d;
   }
 
-  function isToday(dm, today){
-    return dm && dm.d === today.d && dm.m === today.m;
+  function isTodayDate(d, ref){
+    return d && d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate();
   }
-  function isThisMonth(dm, today){
-    return dm && dm.m === today.m;
+  function isThisMonthDate(d, ref){
+    return d && d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth();
   }
 
   // ---------- STATE ----------
@@ -748,7 +945,6 @@
 
   function computeBuckets(rows){
     var now = new Date();
-    var today = { d: now.getDate(), m: now.getMonth()+1 };
     var weeks = buildWeeks(now, 6);
 
     var b = { total: [], totalMes: [], sepHoje: [], sepMes: [], aguHoje: [], aguMes: [], fatHoje: [], fatMes: [], urgHoje: [], urgMes: [], urgAll: [], weeks: weeks };
@@ -757,49 +953,49 @@
       var st = inferStatus(row);
       row.__status = st;
 
-      var dmLib = parseDM(getField(row,'horalib'));
-      var dmConcl = parseDM(getField(row,'horaconcl'));
-      var dmExp = parseDM(getField(row,'horaexp'));
+      // IMPORTANTE: usa datas completas, inclusive ANO.
+      // Antes o painel comparava apenas dia/mes, somando tambem registros de setembro de anos anteriores.
+      var dLib = parseFullDate(getField(row,'horalib'), now);
+      var dConcl = parseFullDate(getField(row,'horaconcl'), now);
+      var dExp = parseFullDate(getField(row,'horaexp'), now);
 
-      // total de pedidos: qualquer pedido com Hora Lib hoje / neste mês (entrou no fluxo)
-      if (isToday(dmLib, today)) b.total.push(row);
-      if (isThisMonth(dmLib, today)) b.totalMes.push(row);
+      // Total de pedidos = lancamentos/liberacoes pela Hora Lib.
+      if (isTodayDate(dLib, now)) b.total.push(row);
+      if (isThisMonthDate(dLib, now)) b.totalMes.push(row);
 
       if (st === 'sep'){
-        if (isToday(dmLib, today)) b.sepHoje.push(row);
-        if (isThisMonth(dmLib, today)) b.sepMes.push(row);
+        if (isTodayDate(dLib, now)) b.sepHoje.push(row);
+        if (isThisMonthDate(dLib, now)) b.sepMes.push(row);
       }
       if (st === 'agu'){
-        var dm = dmConcl || dmLib;
-        if (isToday(dm, today)) b.aguHoje.push(row);
-        if (isThisMonth(dm, today)) b.aguMes.push(row);
+        var dAgu = dConcl || dLib;
+        if (isTodayDate(dAgu, now)) b.aguHoje.push(row);
+        if (isThisMonthDate(dAgu, now)) b.aguMes.push(row);
       }
       if (st === 'fat'){
-        var dmf = dmExp || dmConcl || dmLib;
-        if (isToday(dmf, today)) b.fatHoje.push(row);
-        if (isThisMonth(dmf, today)) b.fatMes.push(row);
+        var dFat = dExp || dConcl || dLib;
+        if (isTodayDate(dFat, now)) b.fatHoje.push(row);
+        if (isThisMonthDate(dFat, now)) b.fatMes.push(row);
 
-        // comparativo semanal: conta pela data de expedição/faturamento (data completa, com ano)
-        var dFull = parseFullDate(getField(row,'horaexp'), now) || parseFullDate(getField(row,'horaconcl'), now) || parseFullDate(getField(row,'horalib'), now);
-        if (dFull){
+        // Comparativo semanal pela data efetiva de expedicao/faturamento.
+        if (dFat){
           for (var w=0; w<weeks.length; w++){
-            if (dFull >= weeks[w].start && dFull <= weeks[w].end){ weeks[w].count++; break; }
+            if (dFat >= weeks[w].start && dFat <= weeks[w].end){ weeks[w].count++; break; }
           }
         }
       }
 
-      // urgentes: "Em Separação"/"Aguardando" parado há mais de THRESHOLD_HOURS sem avançar
+      // Urgentes: "Em Separacao"/"Aguardando" parado ha mais de THRESHOLD_HOURS sem avancar.
       if (st === 'sep' || st === 'agu'){
-        var refFull = st === 'sep'
-          ? parseFullDate(getField(row,'horalib'), now)
-          : (parseFullDate(getField(row,'horaconcl'), now) || parseFullDate(getField(row,'horalib'), now));
+        var refFull = st === 'sep' ? dLib : (dConcl || dLib);
         if (refFull){
           var hours = (now.getTime() - refFull.getTime()) / 3600000;
+          // Nao marca registros futuros ou inconsistentes como urgentes.
           if (hours > THRESHOLD_HOURS){
             row.__hoursStuck = hours;
             b.urgAll.push(row);
-            if (isToday(dmLib, today)) b.urgHoje.push(row);
-            if (isThisMonth(dmLib, today)) b.urgMes.push(row);
+            if (isTodayDate(dLib, now)) b.urgHoje.push(row);
+            if (isThisMonthDate(dLib, now)) b.urgMes.push(row);
           }
         }
       }
@@ -896,19 +1092,18 @@
     isLoading = true;
     setStatusDot('stale');
 
-    fetch(csvUrl(), { cache: 'no-store' })
+    fetch(gvizUrl(), { cache: 'no-store' })
       .then(function(res){
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.text();
       })
-      .then(function(csvText){
-        // Se a planilha não estiver pública, o Google devolve uma página de login (HTML),
-        // não um CSV. Isso é a causa mais comum de "não atualiza".
-        if (/^\s*<(!doctype|html)/i.test(csvText)) {
-          throw new Error('A planilha retornou uma página de login — ela não está pública.');
+      .then(function(gvizText){
+        if (/^\s*<(!doctype|html)/i.test(gvizText)) {
+          throw new Error('A planilha retornou uma pagina de login — ela nao esta publica.');
         }
-        var parsed = Papa.parse(csvText, { header:false, skipEmptyLines:'greedy' });
-        lastRows = rowsToObjects(parsed.data);
+        var payload = parseGvizPayload(gvizText);
+        var rawRows = gvizToRows(payload);
+        lastRows = rowsToObjects(rawRows);
         buckets = computeBuckets(lastRows);
         renderCounts();
         hideError();
@@ -942,11 +1137,49 @@
   var modalTitle = document.getElementById('modalTitle');
   var modalCount = document.getElementById('modalCount');
 
-  function openModal(title, rows){
-    modalTitle.textContent = title;
-    modalCount.textContent = '(' + rows.length + ')';
+  var modalSourceRows = [];
+  var modalFilters = {};
+  var activeFilterCol = null;
+  var filterPopover = document.createElement('div');
+  filterPopover.className = 'filter-popover';
+  filterPopover.id = 'filterPopover';
+  document.body.appendChild(filterPopover);
+
+  var modalColumns = [
+    { key:'dav', label:'DAV', value:function(r){ return getField(r,'dav') || ''; } },
+    { key:'nomecli', label:'Cliente', value:function(r){ return getField(r,'nomecli') || ''; } },
+    { key:'tipodeseparacao', label:'Tipo Separação', value:function(r){ return getField(r,'tipodeseparacao') || ''; } },
+    { key:'__status', label:'Status', value:function(r){ return statusLabel(r.__status) || ''; } },
+    { key:'__resp', label:'Resp.', value:function(r){ return getResp(r) || '—'; } },
+    { key:'horalib', label:'Hora Lib', value:function(r){ return getField(r,'horalib') || '—'; } },
+    { key:'horaconcl', label:'Hora Concl', value:function(r){ return getField(r,'horaconcl') || '—'; } },
+    { key:'horaexp', label:'Hora Exp', value:function(r){ return getField(r,'horaexp') || '—'; } },
+    { key:'nnf', label:'N° NF', value:function(r){ return getField(r,'nnf') || '—'; } },
+    { key:'transp', label:'Transportadora', value:function(r){ return getField(r,'transp') || '—'; } }
+  ];
+
+  function colDef(key){
+    for (var i=0;i<modalColumns.length;i++) if (modalColumns[i].key === key) return modalColumns[i];
+    return null;
+  }
+
+  function filteredModalRows(){
+    return modalSourceRows.filter(function(r){
+      for (var key in modalFilters){
+        if (!Object.prototype.hasOwnProperty.call(modalFilters,key)) continue;
+        var def = colDef(key); if (!def) continue;
+        var value = String(def.value(r));
+        if (modalFilters[key].indexOf(value) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderModalRows(){
+    var rows = filteredModalRows();
+    modalCount.textContent = '(' + rows.length + (rows.length !== modalSourceRows.length ? ' de ' + modalSourceRows.length : '') + ')';
     if (rows.length === 0){
-      modalBody.innerHTML = '<tr class="empty-row"><td colspan="10">Nenhum pedido encontrado neste período.</td></tr>';
+      modalBody.innerHTML = '<tr class="empty-row"><td colspan="10">Nenhum pedido corresponde aos filtros aplicados.</td></tr>';
     } else {
       modalBody.innerHTML = rows.map(function(r){
         return '<tr>' +
@@ -963,6 +1196,70 @@
           '</tr>';
       }).join('');
     }
+    document.querySelectorAll('thead th[data-col]').forEach(function(th){
+      th.classList.toggle('filter-active', !!modalFilters[th.getAttribute('data-col')]);
+    });
+  }
+
+  function uniqueValuesFor(key){
+    var def=colDef(key); if(!def) return [];
+    var seen={}; var vals=[];
+    modalSourceRows.forEach(function(r){ var v=String(def.value(r)); if(!seen[v]){seen[v]=true;vals.push(v);} });
+    return vals.sort(function(a,b){ return a.localeCompare(b,'pt-BR',{numeric:true,sensitivity:'base'}); });
+  }
+
+  function closeFilterPopover(){ filterPopover.classList.remove('open'); activeFilterCol=null; }
+
+  function openFilterPopover(th){
+    var key=th.getAttribute('data-col'), def=colDef(key); if(!def) return;
+    activeFilterCol=key;
+    var values=uniqueValuesFor(key), selected=modalFilters[key] || values.slice();
+    filterPopover.innerHTML =
+      '<div class="filter-title">Filtrar por ' + def.label + '</div>'+
+      '<input class="filter-search" type="search" placeholder="Buscar valor..." aria-label="Buscar valor">'+
+      '<div class="filter-options">'+values.map(function(v){
+        var checked=selected.indexOf(v)!==-1?' checked':'';
+        return '<label class="filter-option"><input type="checkbox" value="'+escapeHtml(v)+'"'+checked+'><span>'+escapeHtml(v || '(vazio)')+'</span></label>';
+      }).join('')+'</div>'+
+      '<div class="filter-actions"><span class="filter-summary">'+values.length+' valor(es)</span><button class="filter-btn" data-action="all">Todos</button><button class="filter-btn" data-action="none">Nenhum</button><button class="filter-btn primary" data-action="apply">Aplicar</button></div>';
+    var rect=th.getBoundingClientRect();
+    filterPopover.style.left=Math.min(rect.left, window.innerWidth-275)+'px';
+    filterPopover.style.top=Math.min(rect.bottom+6, window.innerHeight-375)+'px';
+    filterPopover.classList.add('open');
+
+    var search=filterPopover.querySelector('.filter-search');
+    search.focus();
+    search.addEventListener('input',function(){
+      var q=this.value.toLocaleLowerCase('pt-BR');
+      filterPopover.querySelectorAll('.filter-option').forEach(function(opt){
+        opt.style.display=opt.textContent.toLocaleLowerCase('pt-BR').indexOf(q)!==-1?'flex':'none';
+      });
+    });
+    filterPopover.querySelector('[data-action="all"]').addEventListener('click',function(){ filterPopover.querySelectorAll('.filter-option input').forEach(function(i){i.checked=true;}); });
+    filterPopover.querySelector('[data-action="none"]').addEventListener('click',function(){ filterPopover.querySelectorAll('.filter-option input').forEach(function(i){i.checked=false;}); });
+    filterPopover.querySelector('[data-action="apply"]').addEventListener('click',function(){
+      var checked=Array.prototype.slice.call(filterPopover.querySelectorAll('.filter-option input:checked')).map(function(i){return i.value;});
+      if (checked.length===values.length) delete modalFilters[key]; else modalFilters[key]=checked;
+      renderModalRows(); closeFilterPopover();
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c];});
+  }
+
+  document.querySelectorAll('thead th[data-col]').forEach(function(th){
+    th.addEventListener('click',function(e){e.stopPropagation();openFilterPopover(th);});
+    th.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openFilterPopover(th);}});
+  });
+  document.addEventListener('click',function(e){ if(filterPopover.classList.contains('open') && !filterPopover.contains(e.target) && !e.target.closest('thead th[data-col]')) closeFilterPopover(); });
+  window.addEventListener('resize',closeFilterPopover);
+
+  function openModal(title, rows){
+    modalTitle.textContent = title;
+    modalSourceRows = rows.slice();
+    modalFilters = {};
+    renderModalRows();
     overlay.classList.add('open');
   }
   document.getElementById('closeModal').addEventListener('click', function(){ overlay.classList.remove('open'); });
