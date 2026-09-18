@@ -83,20 +83,18 @@
     flex-direction:column;
     gap: clamp(8px, 0.6vw + 1vh, 32px);
     padding: clamp(10px, 1vw + 1.2vh, 48px) clamp(16px, 1.8vw + 1vh, 56px) clamp(12px, 1.4vw + 1.2vh, 56px);
-    overflow:hidden;
+    overflow-y:auto;
   }
 
   .grid-primary, .grid-secondary{
     display:grid;
     grid-template-columns: repeat(4, 1fr);
     gap: clamp(8px, 0.8vw + 0.8vh, 32px);
-    flex: 3;
-    min-height: 0;
+    flex: 1 0 auto;
   }
-  .grid-attention{ flex: 2; min-height: 0; display:flex; }
+  .grid-attention{ flex: 1 0 auto; display:flex; }
   @media (max-width: 980px){ .grid-primary, .grid-secondary{ grid-template-columns: repeat(2,1fr);} }
   @media (max-width: 560px){
-    .content{ overflow:auto; }
     .grid-primary, .grid-secondary{ grid-template-columns: 1fr; height:auto; }
   }
 
@@ -116,12 +114,10 @@
     cursor:pointer;
     transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     position:relative;
-    overflow:hidden;
     display:flex;
     flex-direction:column;
     justify-content:center;
     box-shadow: 0 1px 3px rgba(18,22,19,0.05);
-    min-height:0;
     min-width:0;
   }
   .card.card-block{ justify-content:flex-start; cursor:default; }
@@ -174,7 +170,9 @@
   .split .divider{ align-self:stretch; width:1px; background:var(--border); }
 
   .hint{
-    position:absolute; right:clamp(10px, 0.8vw + 0.6vh, 26px); bottom:clamp(8px, 0.6vw + 0.6vh, 22px);
+    align-self:flex-end;
+    margin-top:auto;
+    padding-top:6px;
     font-size:clamp(9px, 0.4vw + 0.5vh, 14px); color:var(--text-faint);
     display:flex; align-items:center; gap:4px;
   }
@@ -449,7 +447,7 @@
   // ---------- CONFIG ----------
   // Planilha fixa. Se precisar trocar, só editar as duas linhas abaixo.
   var SHEET_ID = "1bqpqFguJe3LMVXemfOid5J-74KSmeR1wziYK5oTPIkU";
-  var SHEET_GID = "0"; // aba onde o pessoal alimenta status/liberação dos pedidos
+  var SHEET_GID = "1587392761"; // aba que recebe tudo automaticamente da planilha principal
   var REFRESH_MS = 20000; // atualização automática a cada 20s
   var THRESHOLD_HOURS = 24; // pedido "Em Separação"/"Aguardando" parado há mais que isso = urgente
 
@@ -489,8 +487,7 @@
     transp:           [['transp']]
   };
 
-  var resolvedMap = {}; // logicalName -> nome real da coluna nesta carga
-  var respColKey = '';  // nome real da 1ª coluna (letra de quem liberou o pedido)
+  var resolvedMap = {}; // logicalName -> índice da coluna nesta carga
 
   function normalizeText(s){
     return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
@@ -507,60 +504,155 @@
   function cellSatisfiesRule(cellTokens, ruleSet){
     return ruleSet.every(function(kw){ return cellTokens.some(function(t){ return tokenMatchesKeyword(t, kw); }); });
   }
-  function resolveField(headerRow, logicalName){
+  // Tenta achar a coluna pelo TEXTO do cabeçalho. Retorna o índice ou -1 se não achar
+  // (cabeçalho ausente, em branco, ou com um nome que não bate com nenhuma variação conhecida).
+  function resolveFieldIndex(headerRow, logicalName){
     var ruleSets = FIELD_RULES[logicalName] || [[logicalName]];
     for (var i=0; i<headerRow.length; i++){
       var toks = tokenize(headerRow[i]);
       for (var r=0; r<ruleSets.length; r++){
-        if (cellSatisfiesRule(toks, ruleSets[r])) return headerRow[i];
-      }
-    }
-    return '';
-  }
-  function buildFieldMap(headerRow){
-    resolvedMap = {};
-    Object.keys(FIELD_RULES).forEach(function(k){ resolvedMap[k] = resolveField(headerRow, k); });
-    respColKey = headerRow[0] || '';
-  }
-  function getField(row, logicalName){
-    var real = resolvedMap[logicalName];
-    return real ? (row[real] || '') : '';
-  }
-  function getResp(row){
-    return respColKey ? (row[respColKey] || '').trim() : '';
-  }
-
-  // A planilha tem linha(s) de banner/logo acima do cabeçalho real. Em vez de assumir
-  // que a primeira linha do CSV é o cabeçalho, procuramos a linha que tem uma coluna de
-  // status e uma coluna de liberação — funciona não importa quantas linhas de banner
-  // existam acima, e não importa o texto exato do cabeçalho.
-  function findHeaderRowIndex(rows){
-    for (var i=0; i<Math.min(rows.length, 25); i++){
-      if (resolveField(rows[i], 'status') && resolveField(rows[i], 'horalib')){
-        return i;
+        if (cellSatisfiesRule(toks, ruleSets[r])) return i;
       }
     }
     return -1;
   }
+
+  var DATE_RE = /^\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\s+\d{1,2}:\d{2}/;
+  var STATUS_WORD_RE = /fatur|separ|aguard|envia|^sep\b|stop/i;
+  var TIPO_WORD_RE = /almox|expedi/i;
+
+  // Analisa o FORMATO dos valores de cada coluna (datas, palavras de status, números...)
+  // para descobrir o papel de cada uma sem depender do texto do cabeçalho — útil quando
+  // o cabeçalho está incompleto, em branco, ou com nomes que não reconhecemos.
+  function classifyColumnsByData(dataRows, numCols){
+    var sampleN = Math.min(dataRows.length, 400);
+    var cols = [];
+    for (var c=0; c<numCols; c++){
+      var nonEmpty=0, date=0, status=0, numeric=0, longText=0, tipoWord=0, textLenSum=0;
+      for (var r=0; r<sampleN; r++){
+        var v = (dataRows[r][c] || '').toString().trim();
+        if (!v) continue;
+        nonEmpty++;
+        if (DATE_RE.test(v)) date++;
+        else if (STATUS_WORD_RE.test(v)) status++;
+        else if (/^(true|false)$/i.test(v)){ /* checkbox, ignora */ }
+        else if (/^\d+$/.test(v)) numeric++;
+        else { longText++; textLenSum += v.length; }
+        if (TIPO_WORD_RE.test(v)) tipoWord++;
+      }
+      cols.push({
+        idx:c, fill: nonEmpty/sampleN,
+        dateRate: nonEmpty ? date/nonEmpty : 0,
+        statusRate: nonEmpty ? status/nonEmpty : 0,
+        numericRate: nonEmpty ? numeric/nonEmpty : 0,
+        longTextRate: nonEmpty ? longText/nonEmpty : 0,
+        tipoRate: nonEmpty ? tipoWord/nonEmpty : 0,
+        avgLen: longText ? textLenSum/longText : 0
+      });
+    }
+    return cols;
+  }
+  function guessColumnsFromData(dataRows, numCols){
+    var cols = classifyColumnsByData(dataRows, numCols);
+    var g = {};
+
+    // colunas de data: as com maior taxa de datas, da esquerda pra direita
+    // (Hora Lib é sempre preenchida primeiro no fluxo, depois Hora Concl, depois Hora Exp)
+    var dateCols = cols.filter(function(c){ return c.dateRate > 0.5 && c.fill > 0.15; })
+                        .sort(function(a,b){ return a.idx - b.idx; });
+    if (dateCols[0]) g.horalib = dateCols[0].idx;
+    if (dateCols[1]) g.horaconcl = dateCols[1].idx;
+    if (dateCols[2]) g.horaexp = dateCols[2].idx;
+
+    var statusCol = cols.filter(function(c){ return c.statusRate > 0.3; })
+                         .sort(function(a,b){ return b.statusRate - a.statusRate; })[0];
+    if (statusCol) g.status = statusCol.idx;
+
+    var tipoCol = cols.filter(function(c){ return c.tipoRate > 0.5; })
+                       .sort(function(a,b){ return b.tipoRate - a.tipoRate; })[0];
+    if (tipoCol) g.tipodeseparacao = tipoCol.idx;
+
+    var nameCol = cols.filter(function(c){ return c.longTextRate > 0.5 && c.avgLen > 10 && c.fill > 0.5; })
+                       .sort(function(a,b){ return b.avgLen - a.avgLen; })[0];
+    if (nameCol) g.nomecli = nameCol.idx;
+
+    // numéricas: ID CLI e DAV são as duas colunas numéricas de preenchimento quase total,
+    // e são fáceis de confundir entre si. Usamos como âncora as colunas de texto vizinhas
+    // já identificadas: ID CLI fica logo antes de "Nome do Cliente", DAV fica logo antes
+    // de "Tipo de Separação" — é assim que a planilha é montada.
+    var byIdx = {}; cols.forEach(function(c){ byIdx[c.idx] = c; });
+    var idCliIdx = (nameCol && byIdx[nameCol.idx-1] && byIdx[nameCol.idx-1].numericRate > 0.6) ? nameCol.idx-1 : null;
+    var davIdx = (tipoCol && byIdx[tipoCol.idx-1] && byIdx[tipoCol.idx-1].numericRate > 0.6) ? tipoCol.idx-1 : null;
+
+    var numericCols = cols.filter(function(c){ return c.numericRate > 0.7 && c.fill > 0.05; })
+                           .sort(function(a,b){ return b.fill - a.fill; });
+    if (davIdx !== null) g.dav = davIdx;
+    else if (numericCols[0]) g.dav = numericCols[0].idx;
+
+    var sparse = numericCols.filter(function(c){ return c.idx !== g.dav && c.idx !== idCliIdx; })
+                             .sort(function(a,b){ return a.fill - b.fill; });
+    if (sparse[0]) g.nnf = sparse[0].idx;
+
+    var transpCol = cols.filter(function(c){
+      return c.longTextRate > 0.3 && c.fill > 0.02 && c.fill < 0.9 &&
+        c.idx !== g.nomecli && c.idx !== g.tipodeseparacao;
+    }).sort(function(a,b){ return b.idx - a.idx; })[0];
+    if (transpCol) g.transp = transpCol.idx;
+
+    return g;
+  }
+
+  function getField(row, logicalName){
+    var idx = resolvedMap[logicalName];
+    return (idx !== undefined && idx >= 0 && row[idx] !== undefined) ? String(row[idx] || '') : '';
+  }
+  function getResp(row){
+    return (row[0] || '').toString().trim(); // 1ª coluna = letra de quem liberou o pedido
+  }
+
+  // Acha onde os DADOS de verdade começam: procura a primeira linha cujas duas primeiras
+  // células são letras únicas (padrão do RESP/COND, ex: "T","N") e que tenha alguma data
+  // em algum lugar — um padrão bem específico que dificilmente aparece em linhas de banner.
+  function findDataStartIndex(rows){
+    for (var i=0; i<Math.min(rows.length, 50); i++){
+      var row = rows[i];
+      var c0 = (row[0]||'').toString().trim(), c1 = (row[1]||'').toString().trim();
+      if (/^[A-Za-z]$/.test(c0) && /^[A-Za-z]$/.test(c1)){
+        var hasDate = row.some(function(c){ return c && DATE_RE.test(String(c).trim()); });
+        if (hasDate) return i;
+      }
+    }
+    return -1;
+  }
+
   function rowsToObjects(raw){
-    var headerIdx = findHeaderRowIndex(raw);
-    if (headerIdx === -1){
-      var preview = raw.slice(0, 6).map(function(r, i){
-        return 'linha ' + (i+1) + ': ' + r.slice(0, 8).filter(function(c){ return c; }).join(' | ');
-      }).filter(function(l){ return l.indexOf(': ') !== l.length - 2; }).join('<br>');
-      var e = new Error('Não encontrei a linha de cabeçalho (uma coluna de STATUS e uma de liberação). Primeiras linhas lidas da planilha:<br>' + (preview || '(vazio)'));
+    var dataStart = findDataStartIndex(raw);
+    if (dataStart === -1){
+      var preview = raw.slice(0, 5).map(function(r, i){
+        return 'linha ' + (i+1) + ': [' + r.map(function(c, ci){ return ci + '="' + (c||'') + '"'; }).join(', ') + ']';
+      }).join('<br>');
+      var e = new Error('Não consegui identificar onde os dados começam na planilha. Primeiras linhas lidas:<br>' + (preview || '(vazio)'));
       e.isHeaderMiss = true;
       throw e;
     }
-    var headerRow = raw[headerIdx];
-    buildFieldMap(headerRow);
-    return raw.slice(headerIdx + 1)
-      .filter(function(r){ return r.some(function(c){ return c && String(c).trim() !== ''; }); })
-      .map(function(r){
-        var obj = {};
-        headerRow.forEach(function(h, i){ obj[h] = r[i] !== undefined ? r[i] : ''; });
-        return obj;
-      });
+    var headerRow = dataStart > 0 ? raw[dataStart - 1] : [];
+    var dataRows = raw.slice(dataStart).filter(function(r){ return r.some(function(c){ return c && String(c).trim() !== ''; }); });
+
+    // para cada campo: tenta pelo texto do cabeçalho primeiro; se não achar
+    // (cabeçalho ausente/em branco/nome não reconhecido), infere pelo formato dos dados
+    var numCols = Math.max(headerRow.length, dataRows.reduce(function(m,r){ return Math.max(m, r.length); }, 0));
+    var byData = null; // calculado sob demanda, só se precisar
+    resolvedMap = {};
+    Object.keys(FIELD_RULES).forEach(function(k){
+      var idx = resolveFieldIndex(headerRow, k);
+      if (idx === -1){
+        if (!byData) byData = guessColumnsFromData(dataRows, numCols);
+        idx = (byData[k] !== undefined) ? byData[k] : -1;
+      }
+      resolvedMap[k] = idx;
+    });
+
+    return dataRows;
   }
 
   // ---------- STATUS INFERENCE ----------
