@@ -432,10 +432,17 @@
   tbody td{border-color:var(--border);color:#e5e7eb;}
   tbody tr:hover{background:#25272d;}
   .empty-row td{color:var(--text-faint);}
-  .status-chip.sep{background:rgba(18,137,55,.16);color:#8FE3A6;}
-  .status-chip.agu{background:rgba(224,168,61,.14);color:var(--amber);}
-  .status-chip.fat{background:rgba(59,130,246,.16);color:#93b4ff;}
+  /* Status com as cores usadas na planilha */
+  .status-chip.sep{background:#f2df00;color:#111;}
+  .status-chip.agu{background:#d97921;color:#111;}
+  .status-chip.fat{background:#e84aa8;color:#111;}
   .status-chip.out{background:var(--panel-2);color:var(--text-faint);}
+
+  /* Pedido urgente: linha inteira destacada em vermelho no modal */
+  tbody tr.row-urgent{background:rgba(220,38,38,.22);}
+  tbody tr.row-urgent td{border-bottom-color:rgba(248,113,113,.32);}
+  tbody tr.row-urgent:hover{background:rgba(220,38,38,.32);}
+  tbody tr.row-urgent td:first-child{box-shadow:inset 4px 0 0 #ef4444;}
 
   .filter-popover{position:fixed;z-index:120;background:#202126;border:1px solid #3a3d44;border-radius:10px;box-shadow:0 18px 45px rgba(0,0,0,.45);width:260px;max-height:360px;padding:10px;display:none;}
   .filter-popover.open{display:block;}
@@ -952,6 +959,7 @@
     rows.forEach(function(row){
       var st = inferStatus(row);
       row.__status = st;
+      row.__urgent = false;
 
       // IMPORTANTE: usa datas completas, inclusive ANO.
       // Antes o painel comparava apenas dia/mes, somando tambem registros de setembro de anos anteriores.
@@ -992,6 +1000,7 @@
           var hours = (now.getTime() - refFull.getTime()) / 3600000;
           // Nao marca registros futuros ou inconsistentes como urgentes.
           if (hours > THRESHOLD_HOURS){
+            row.__urgent = true;
             row.__hoursStuck = hours;
             b.urgAll.push(row);
             if (isTodayDate(dLib, now)) b.urgHoje.push(row);
@@ -1182,7 +1191,7 @@
       modalBody.innerHTML = '<tr class="empty-row"><td colspan="10">Nenhum pedido corresponde aos filtros aplicados.</td></tr>';
     } else {
       modalBody.innerHTML = rows.map(function(r){
-        return '<tr>' +
+        return '<tr' + (r.__urgent ? ' class="row-urgent"' : '') + '>' +
           '<td>' + (getField(r,'dav')||'') + '</td>' +
           '<td>' + (getField(r,'nomecli')||'') + '</td>' +
           '<td>' + (getField(r,'tipodeseparacao')||'') + '</td>' +
