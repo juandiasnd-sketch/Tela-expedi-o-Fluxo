@@ -611,6 +611,124 @@
     .attention-list li{font-size:9px;}
   }
 
+
+  .fullscreen-btn{
+    position:fixed; right:16px; bottom:16px; z-index:900;
+    border:1px solid rgba(255,255,255,.12); background:#14933f; color:#fff;
+    font:700 13px var(--sans); padding:10px 14px; border-radius:12px; cursor:pointer;
+    box-shadow:0 8px 24px rgba(0,0,0,.28); opacity:.88; transition:.18s ease;
+  }
+  .fullscreen-btn:hover{opacity:1; transform:translateY(-1px);}
+  .fullscreen-btn:focus{outline:2px solid rgba(255,255,255,.7); outline-offset:2px;}
+  @media (max-height:700px){.fullscreen-btn{right:10px;bottom:10px;padding:7px 10px;font-size:11px}}
+
+
+
+  /* =========================================================
+     CORRECAO DE TITULOS CORTADOS / TV
+     Mantem o cabecalho de cada card sempre visivel.
+     ========================================================= */
+  .dashboard-grid .card{
+    justify-content:flex-start !important;
+  }
+  .dashboard-grid .pill{
+    flex:0 0 auto !important;
+    min-height:0;
+    position:relative;
+    z-index:3;
+  }
+  .dashboard-grid .split{
+    flex:1 1 auto;
+    min-height:0;
+  }
+  .dashboard-grid .hint{
+    flex:0 0 auto;
+  }
+
+  /* O breakpoint de 2 colunas precisa de QUATRO linhas.
+     A regra antiga de TV forcava apenas 3 linhas e acabava
+     comprimindo/cortando Aguardando, Faturado e outros titulos. */
+  @media (min-width:681px) and (max-width:1100px){
+    html,body{height:100%;min-height:0;overflow:hidden;}
+    body{height:100dvh;max-height:100dvh;overflow:hidden;}
+    .topbar{padding:7px 18px;gap:12px;}
+    .brand img{height:28px;}
+    .titleblock{order:initial;width:auto;align-items:flex-end;text-align:right;}
+    .titleblock .updated{justify-content:flex-end;}
+    .titleblock h1{font-size:18px;}
+    .titleblock .updated{font-size:9px;}
+    .clockblock{min-width:145px;}
+    .clockblock .time{font-size:24px;}
+    .clockblock .date{font-size:9px;}
+
+    .content{
+      min-height:0;
+      overflow:hidden !important;
+      padding:8px 18px 7px;
+      gap:7px;
+    }
+    .dashboard-grid{
+      height:100%;
+      min-height:0;
+      grid-template-columns:1fr 1fr !important;
+      grid-template-areas:
+        "nf nf"
+        "total sep"
+        "agu fat"
+        "urg attention" !important;
+      grid-template-rows:minmax(185px,1.55fr) minmax(105px,.82fr) minmax(105px,.82fr) minmax(135px,1fr) !important;
+      gap:7px !important;
+    }
+    .card{
+      min-height:0 !important;
+      height:100%;
+      padding:7px 11px 6px !important;
+      border-radius:10px;
+      overflow:hidden;
+    }
+    .pill{
+      font-size:11px !important;
+      line-height:1.05;
+      padding:4px 12px !important;
+      margin:0 auto 5px !important;
+      white-space:nowrap;
+    }
+    .pill .dot{width:5px;height:5px;}
+    .split{gap:6px;}
+    .split .metric .val{font-size:30px;line-height:1;}
+    .split .metric .lbl{font-size:8px;margin-top:2px;}
+    .hint{font-size:8px;padding-top:2px;}
+
+    .card-hero .bignum{font-size:40px;line-height:.95;}
+    .card-hero .sublabel{font-size:9px;margin-top:1px;}
+    .hero-badge{font-size:8px;padding:3px 9px;margin-top:3px;}
+    .hero-badge strong{font-size:11px;}
+    .chart-title{font-size:7.5px;margin-top:3px;margin-bottom:1px;}
+    .chart-bars{min-height:42px !important;gap:5px;padding:0 4px;}
+    .chart-val{font-size:8px;margin-bottom:1px;}
+    .chart-lbl{font-size:6.5px;margin-top:1px;}
+    .chart-bar{max-width:28px;}
+
+    .attention-list{gap:3px;overflow:auto;}
+    .attention-list li{font-size:9px;line-height:1.16;}
+    .footer-note{display:none;}
+  }
+
+  @media (min-width:681px) and (max-width:1100px) and (max-height:700px){
+    .topbar{padding-top:5px;padding-bottom:5px;}
+    .content{padding-top:6px;padding-bottom:5px;gap:5px;}
+    .dashboard-grid{
+      gap:5px !important;
+      grid-template-rows:minmax(165px,1.48fr) minmax(92px,.78fr) minmax(92px,.78fr) minmax(120px,.96fr) !important;
+    }
+    .card{padding:5px 9px 4px !important;}
+    .pill{font-size:10px !important;padding:3px 10px !important;margin-bottom:3px !important;}
+    .split .metric .val{font-size:27px;}
+    .card-hero .bignum{font-size:36px;}
+    .chart-bars{min-height:34px !important;}
+    .hint{display:none;}
+    .attention-list li{font-size:8.5px;}
+  }
 </style>
 </head>
 <body>
@@ -1472,6 +1590,30 @@
     if (document.visibilityState === 'visible') load();
   });
 
+})();
+</script>
+
+  <button class="fullscreen-btn" id="fullscreenBtn" type="button" title="Entrar ou sair da tela cheia">⛶ Tela cheia</button>
+
+<script>
+(function(){
+  var btn=document.getElementById('fullscreenBtn');
+  if(!btn) return;
+  function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement||null;}
+  function sync(){btn.textContent=fsEl()?'⛶ Sair da tela cheia':'⛶ Tela cheia';}
+  btn.addEventListener('click',function(){
+    if(!fsEl()){
+      var el=document.documentElement;
+      var p=el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen?el.webkitRequestFullscreen():null;
+      if(p&&p.catch) p.catch(function(){alert('O navegador bloqueou a tela cheia. Clique novamente no botão ou use F11.');});
+    }else{
+      var p=document.exitFullscreen?document.exitFullscreen():document.webkitExitFullscreen?document.webkitExitFullscreen():null;
+      if(p&&p.catch) p.catch(function(){});
+    }
+  });
+  document.addEventListener('fullscreenchange',sync);
+  document.addEventListener('webkitfullscreenchange',sync);
+  sync();
 })();
 </script>
 </body>
