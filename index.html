@@ -383,6 +383,35 @@
     return respColKey ? (row[respColKey] || '').trim() : '';
   }
 
+  // A planilha tem linha(s) de banner/logo acima do cabeçalho real (ex: linha 1 = logo,
+  // linha 2 = em branco, linha 3 = RESP/STATUS/Hora Lib...). Em vez de assumir que a
+  // primeira linha do CSV é o cabeçalho, procuramos a linha que realmente contém
+  // "STATUS" e "Hora Lib" — funciona não importa quantas linhas de banner existam acima.
+  function findHeaderRowIndex(rows){
+    for (var i=0; i<Math.min(rows.length, 20); i++){
+      var normalizedCells = rows[i].map(normalizeKey);
+      if (normalizedCells.indexOf('status') !== -1 && normalizedCells.indexOf('horalib') !== -1){
+        return i;
+      }
+    }
+    return -1;
+  }
+  function rowsToObjects(raw){
+    var headerIdx = findHeaderRowIndex(raw);
+    if (headerIdx === -1){
+      throw new Error('Não encontrei a linha de cabeçalho (RESP/STATUS/Hora Lib) na planilha.');
+    }
+    var headerRow = raw[headerIdx];
+    buildFieldMap(headerRow);
+    return raw.slice(headerIdx + 1)
+      .filter(function(r){ return r.some(function(c){ return c && String(c).trim() !== ''; }); })
+      .map(function(r){
+        var obj = {};
+        headerRow.forEach(function(h, i){ obj[h] = r[i] !== undefined ? r[i] : ''; });
+        return obj;
+      });
+  }
+
   // ---------- STATUS INFERENCE ----------
   // Regra: 1) usa o texto da coluna STATUS se contiver uma palavra-chave reconhecida.
   //        2) senão, infere pela presença de Hora Lib / Hora Concl / N° NF.
@@ -515,9 +544,8 @@
         if (/^\s*<(!doctype|html)/i.test(csvText)) {
           throw new Error('A planilha retornou uma página de login — ela não está pública.');
         }
-        var parsed = Papa.parse(csvText, { header:true, skipEmptyLines:true });
-        buildFieldMap(parsed.meta && parsed.meta.fields);
-        lastRows = parsed.data;
+        var parsed = Papa.parse(csvText, { header:false, skipEmptyLines:'greedy' });
+        lastRows = rowsToObjects(parsed.data);
         buckets = computeBuckets(lastRows);
         renderCounts();
         hideError();
