@@ -29,9 +29,14 @@
     -webkit-font-smoothing:antialiased;
   }
   body{
-    min-height:100vh;
+    height:100vh;
+    max-height:100vh;
     display:flex;
     flex-direction:column;
+    overflow:hidden;
+  }
+  @media (max-width: 560px){
+    body{ height:auto; max-height:none; overflow:auto; }
   }
   .topbar{
     display:flex;
@@ -40,14 +45,15 @@
     flex-wrap:wrap;
     gap:16px;
     background: linear-gradient(90deg, var(--green-dark) 0%, var(--green) 100%);
-    padding: clamp(16px,1.7vw,28px) clamp(26px,2.6vw,56px);
+    padding: clamp(10px, 1vw + 1.4vh, 28px) clamp(18px, 2vw + 1vh, 56px);
     box-shadow: 0 2px 14px rgba(0,0,0,0.12);
+    flex: 0 0 auto;
   }
   .brand{ display:flex; align-items:center; gap:16px; }
-  .brand img{ height:clamp(36px,3.6vw,64px); width:auto; }
-  .titleblock{ text-align:center; flex:1; min-width:260px; }
+  .brand img{ height:clamp(28px, 2.4vw + 2vh, 64px); width:auto; }
+  .titleblock{ text-align:center; flex:1; min-width:200px; }
   .titleblock h1{
-    font-size: clamp(19px,1.9vw,32px);
+    font-size: clamp(15px, 1.2vw + 1.2vh, 32px);
     letter-spacing: 0.04em;
     font-weight: 800;
     text-transform:uppercase;
@@ -55,43 +61,58 @@
   }
   .titleblock .by{ font-size:0.5em; color:rgba(255,255,255,0.82); font-weight:600; margin-left:8px; letter-spacing:0.02em; text-transform:none;}
   .titleblock .updated{
-    margin-top:6px;
-    font-size:clamp(12px,1vw,16px);
+    margin-top:4px;
+    font-size:clamp(10px, 0.6vw + 0.7vh, 16px);
     color:rgba(255,255,255,0.82);
     display:flex;
     align-items:center;
     justify-content:center;
     gap:7px;
   }
-  .dot{ width:8px; height:8px; border-radius:50%; background:#ffffff; box-shadow:0 0 8px rgba(255,255,255,0.6); display:inline-block; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:#ffffff; box-shadow:0 0 8px rgba(255,255,255,0.6); display:inline-block; flex:0 0 auto; }
   .dot.stale{ background:#ffd257; box-shadow:0 0 8px #ffd257;}
   .dot.err{ background:#ff6b6b; box-shadow:0 0 8px #ff6b6b;}
-  .clockblock{ text-align:right; min-width:180px; }
-  .clockblock .time{ font-size:clamp(28px,3.2vw,60px); font-weight:800; letter-spacing:0.02em; font-variant-numeric: tabular-nums; color:#ffffff; }
-  .clockblock .date{ font-size:clamp(12px,1vw,16px); color:rgba(255,255,255,0.82); margin-top:4px; text-transform:capitalize;}
+  .clockblock{ text-align:right; min-width:140px; }
+  .clockblock .time{ font-size:clamp(18px, 1.6vw + 2vh, 60px); font-weight:800; letter-spacing:0.02em; font-variant-numeric: tabular-nums; color:#ffffff; }
+  .clockblock .date{ font-size:clamp(10px, 0.6vw + 0.7vh, 16px); color:rgba(255,255,255,0.82); margin-top:2px; text-transform:capitalize;}
 
   .content{
     flex:1;
+    min-height:0;
     display:flex;
     flex-direction:column;
-    padding: clamp(22px,2vw,48px) clamp(26px,2.6vw,56px) clamp(30px,2.8vw,56px);
+    gap: clamp(8px, 0.6vw + 1vh, 32px);
+    padding: clamp(10px, 1vw + 1.2vh, 48px) clamp(16px, 1.8vw + 1vh, 56px) clamp(12px, 1.4vw + 1.2vh, 56px);
+    overflow:hidden;
   }
 
-  .grid{
+  .grid-primary, .grid-secondary{
     display:grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: clamp(18px,1.8vw,36px);
-    flex:1;
-    min-height: 54vh;
+    gap: clamp(8px, 0.8vw + 0.8vh, 32px);
+    flex: 3;
+    min-height: 0;
   }
-  @media (max-width: 980px){ .grid{ grid-template-columns: repeat(2,1fr);} }
-  @media (max-width: 560px){ .grid{ grid-template-columns: 1fr; min-height:auto;} }
+  .grid-attention{ flex: 2; min-height: 0; display:flex; }
+  @media (max-width: 980px){ .grid-primary, .grid-secondary{ grid-template-columns: repeat(2,1fr);} }
+  @media (max-width: 560px){
+    .content{ overflow:auto; }
+    .grid-primary, .grid-secondary{ grid-template-columns: 1fr; height:auto; }
+  }
+
+  .card-wide-2{ grid-column: span 2; }
+  @media (max-width: 980px){ .card-wide-2{ grid-column: span 2; } }
+  @media (max-width: 560px){ .card-wide-2{ grid-column: span 1; } }
+
+  .card-wide-3{ grid-column: span 3; }
+  @media (max-width: 980px){ .card-wide-3{ grid-column: span 2; } }
+  @media (max-width: 560px){ .card-wide-3{ grid-column: span 1; } }
 
   .card{
     background: var(--panel);
     border:1px solid var(--border);
-    border-radius: clamp(14px,1.2vw,22px);
-    padding: clamp(26px,2.6vw,48px) clamp(22px,2.2vw,40px) clamp(22px,2vw,36px);
+    border-radius: clamp(10px, 0.6vw + 0.6vh, 22px);
+    padding: clamp(10px, 1vw + 1.2vh, 48px) clamp(12px, 1vw + 0.8vh, 40px) clamp(10px, 0.8vw + 0.8vh, 36px);
     cursor:pointer;
     transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     position:relative;
@@ -100,7 +121,17 @@
     flex-direction:column;
     justify-content:center;
     box-shadow: 0 1px 3px rgba(18,22,19,0.05);
+    min-height:0;
+    min-width:0;
   }
+  .card.card-block{ justify-content:flex-start; cursor:default; }
+  .card.card-block:hover{ transform:none; box-shadow: 0 1px 3px rgba(18,22,19,0.05); border-color:var(--border); }
+  .card.card-top{ justify-content:flex-start; }
+  .card.card-hero{ align-items:center; text-align:center; }
+  .card.card-hero .pill{ align-self:center; }
+  .card.card-hero .chart-title{ align-self:stretch; text-align:center; }
+  .card.card-hero .chart-bars{ align-self:stretch; width:100%; }
+  .card.no-click{ cursor:default; }
   .card:hover{
     transform: translateY(-2px);
     border-color: var(--green);
@@ -113,34 +144,38 @@
     gap:8px;
     background: var(--green);
     color:#eafff0;
-    font-size:clamp(12.5px,1vw,17px);
+    font-size:clamp(10px, 0.6vw + 0.7vh, 17px);
     font-weight:700;
     letter-spacing:0.04em;
     text-transform:uppercase;
-    padding:clamp(8px,0.8vw,13px) clamp(14px,1.4vw,22px);
+    padding:clamp(5px, 0.4vw + 0.5vh, 13px) clamp(10px, 0.8vw + 0.6vh, 22px);
     border-radius:999px;
-    margin-bottom:clamp(18px,2.2vw,34px);
+    margin-bottom:clamp(6px, 0.6vw + 1vh, 34px);
     width:fit-content;
+    max-width:100%;
+    white-space:nowrap;
   }
   .pill .dot{ background:#eafff0; box-shadow:none; width:7px; height:7px;}
   .card.amber .pill{ background:var(--amber); color:#241a00;}
   .card.amber .pill .dot{ background:#241a00; }
-  .card.red .pill{ background:#7a2a2a; color:#ffd9d9; }
-  .card.red .pill .dot{ background:#ffd9d9; }
+  .card.red .pill{ background:var(--red); color:#fff0f0; }
+  .card.red .pill .dot{ background:#fff0f0; }
+  .card.red{ border-color:#f3d5d5; }
+  .card.red:hover{ border-color:var(--red); box-shadow: 0 10px 28px -8px rgba(198,40,40,0.18); }
 
-  .bignum{ font-size:clamp(52px,6.4vw,110px); font-weight:800; line-height:1; letter-spacing:-0.01em; }
+  .bignum{ font-size:clamp(24px, 3.6vw + 3.6vh, 110px); font-weight:800; line-height:1; letter-spacing:-0.01em; }
   .bignum small{ font-size:0.35em; font-weight:600; color:var(--text-dim); margin-left:4px;}
-  .sublabel{ font-size:clamp(13px,1.05vw,18px); color:var(--text-dim); margin-top:8px; }
+  .sublabel{ font-size:clamp(11px, 0.6vw + 0.6vh, 18px); color:var(--text-dim); margin-top:6px; }
 
-  .split{ display:flex; gap:clamp(20px,2.4vw,42px); margin-top:0; align-items:center; }
-  .split .metric{ flex:1; }
-  .split .metric .val{ font-size:clamp(38px,5vw,88px); font-weight:800; line-height:1; }
-  .split .metric .lbl{ font-size:clamp(11.5px,0.95vw,16px); color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; margin-top:8px;}
+  .split{ display:flex; gap:clamp(10px, 1vw + 1vh, 42px); margin-top:0; align-items:center; }
+  .split .metric{ flex:1; min-width:0; }
+  .split .metric .val{ font-size:clamp(20px, 2.6vw + 2.6vh, 88px); font-weight:800; line-height:1; }
+  .split .metric .lbl{ font-size:clamp(9.5px, 0.5vw + 0.5vh, 16px); color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; margin-top:6px;}
   .split .divider{ align-self:stretch; width:1px; background:var(--border); }
 
   .hint{
-    position:absolute; right:clamp(16px,1.6vw,26px); bottom:clamp(14px,1.4vw,22px);
-    font-size:clamp(10.5px,0.85vw,14px); color:var(--text-faint);
+    position:absolute; right:clamp(10px, 0.8vw + 0.6vh, 26px); bottom:clamp(8px, 0.6vw + 0.6vh, 22px);
+    font-size:clamp(9px, 0.4vw + 0.5vh, 14px); color:var(--text-faint);
     display:flex; align-items:center; gap:4px;
   }
   .btn{
@@ -169,11 +204,57 @@
   }
   .errorbar code{ background:#3a1a1a; padding:1px 6px; border-radius:4px; }
 
+  /* card: hero number + "hoje" badge (Notas Fiscais) */
+  .hero-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--panel-2); border:1px solid var(--border);
+    color:var(--text-dim); font-size:clamp(10px, 0.5vw + 0.6vh, 15px); font-weight:700;
+    padding:clamp(4px, 0.3vw + 0.4vh, 10px) clamp(8px, 0.6vw + 0.5vh, 18px);
+    border-radius:999px; margin-top:clamp(6px, 0.6vw + 0.8vh, 24px); width:fit-content;
+  }
+  .hero-badge strong{ color:var(--text); font-size:1.15em; }
+
+  /* card: weekly comparison bar chart */
+  .chart-title{
+    font-size:clamp(9px, 0.4vw + 0.5vh, 14px); color:var(--text-faint); text-transform:uppercase;
+    letter-spacing:0.05em; font-weight:700; margin-top:clamp(6px, 0.6vw + 0.8vh, 22px); margin-bottom:clamp(6px, 0.5vw + 0.6vh, 18px);
+  }
+  .chart-bars{
+    flex:1; display:flex; align-items:stretch; gap:clamp(4px, 0.5vw + 0.5vh, 18px);
+    min-height:0;
+  }
+  .chart-col{ flex:1; display:flex; flex-direction:column; align-items:center; min-width:0; }
+  .chart-bar-wrap{ flex:1; width:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; min-height:0; }
+  .chart-val{ font-size:clamp(9px, 0.5vw + 0.5vh, 16px); font-weight:800; color:var(--text-dim); margin-bottom:4px; }
+  .chart-bar{
+    width:100%; max-width:46px; border-radius:6px 6px 3px 3px;
+    background: var(--border); transition: height .4s ease;
+  }
+  .chart-col.current .chart-bar{ background: var(--green); }
+  .chart-col.current .chart-val{ color:var(--green-dark); }
+  .chart-lbl{ font-size:clamp(7.5px, 0.35vw + 0.4vh, 12.5px); color:var(--text-faint); margin-top:5px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+
+  /* card: pontos de atenção */
+  .attention-card{ display:flex; flex-direction:column; width:100%; min-height:0; }
+  .attention-list{ list-style:none; margin-top:clamp(6px, 0.6vw + 0.8vh, 22px); display:flex; flex-direction:column; gap:clamp(5px, 0.5vw + 0.6vh, 16px); overflow:hidden; }
+  .attention-list li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:clamp(11px, 0.6vw + 0.7vh, 18px); color:var(--text); line-height:1.4;
+  }
+  .attention-list li::before{
+    content:''; flex:0 0 auto; width:8px; height:8px; border-radius:50%;
+    background:var(--amber); margin-top:0.5em;
+  }
+  .attention-list li.ok::before{ background:var(--green); }
+  .attention-list li.crit::before{ background:var(--red); }
+  .attention-empty{ color:var(--text-faint); font-size:clamp(11px, 0.5vw + 0.6vh, 17px); margin-top:clamp(6px, 0.6vw + 0.8vh, 22px); }
+
   .footer-note{
-    margin-top:clamp(18px,1.8vw,32px);
-    font-size:clamp(11.5px,0.95vw,16px);
+    margin-top:0;
+    flex:0 0 auto;
+    font-size:clamp(9px, 0.4vw + 0.5vh, 16px);
     color:var(--text-faint);
-    display:flex; gap:clamp(16px,1.6vw,28px); flex-wrap:wrap;
+    display:flex; gap:clamp(10px, 0.8vw + 0.6vh, 28px); flex-wrap:wrap;
   }
   .footer-note span{ display:flex; align-items:center; gap:6px; }
   .legend-dot{ width:8px;height:8px;border-radius:50%; }
@@ -246,7 +327,7 @@
 
   <div class="errorbar" id="errorBar"></div>
 
-  <div class="grid">
+  <div class="grid-primary">
     <div class="card" id="cardTotal">
       <div class="pill"><span class="dot"></span>Total de Pedidos</div>
       <div class="split">
@@ -285,6 +366,35 @@
         <div class="metric"><div class="val" id="fatMes">–</div><div class="lbl">Este mês</div></div>
       </div>
       <div class="hint">clique para detalhar ↗</div>
+    </div>
+  </div>
+
+  <div class="grid-secondary">
+    <div class="card card-top card-hero card-wide-3" id="cardNFs">
+      <div class="pill"><span class="dot"></span>Notas Fiscais — Mês</div>
+      <div class="bignum"><span id="nfMes">–</span><small> NFs</small></div>
+      <div class="sublabel">notas fiscais no mês</div>
+      <div class="hero-badge">hoje: <strong id="nfHoje">–</strong></div>
+      <div class="chart-title">Comparativo semanal · notas faturadas</div>
+      <div class="chart-bars" id="chartBars"></div>
+      <div class="hint">clique para detalhar ↗</div>
+    </div>
+
+    <div class="card red" id="cardUrgentes">
+      <div class="pill"><span class="dot"></span>Urgentes</div>
+      <div class="split">
+        <div class="metric"><div class="val" id="urgHoje">–</div><div class="lbl">Hoje</div></div>
+        <div class="divider"></div>
+        <div class="metric"><div class="val" id="urgMes">–</div><div class="lbl">Este mês</div></div>
+      </div>
+      <div class="hint">clique para detalhar ↗</div>
+    </div>
+  </div>
+
+  <div class="grid-attention">
+    <div class="card card-block attention-card no-click">
+      <div class="pill"><span class="dot"></span>Pontos de Atenção</div>
+      <ul class="attention-list" id="attentionList"></ul>
     </div>
   </div>
 
@@ -341,6 +451,7 @@
   var SHEET_ID = "1bqpqFguJe3LMVXemfOid5J-74KSmeR1wziYK5oTPIkU";
   var SHEET_GID = "0"; // aba onde o pessoal alimenta status/liberação dos pedidos
   var REFRESH_MS = 20000; // atualização automática a cada 20s
+  var THRESHOLD_HOURS = 24; // pedido "Em Separação"/"Aguardando" parado há mais que isso = urgente
 
   function csvUrl(){
     // "&_=" + timestamp quebra qualquer cache (do navegador ou do Google) para garantir dado sempre fresco
@@ -362,35 +473,70 @@
   setInterval(tickClock, 1000);
 
   // ---------- LEITURA ROBUSTA DE COLUNAS ----------
-  // Não depende do nome exato/acentuação do cabeçalho da planilha: normaliza
-  // ("Hora Lib", "hora_lib", "HORA LIB" etc. todos viram "horalib").
-  var fieldMap = {};   // normalizado -> nome real da coluna nesta carga
-  var respColKey = ''; // nome real da 1ª coluna (letra de quem liberou o pedido)
+  // Não depende do nome exato/completo do cabeçalho da planilha: casa por palavra/radical
+  // (ex: uma coluna "Hora Liberação" ou "Hora Lib" são reconhecidas igual), com uma trava
+  // de tamanho mínimo para nunca confundir células curtas de dados (ex: "T", "N") com
+  // cabeçalho.
+  var FIELD_RULES = {
+    status:           [['status']],
+    horalib:          [['hora','lib']],
+    horaconcl:        [['hora','concl']],
+    horaexp:          [['hora','exp']],
+    nnf:               [['nf'], ['nota','fiscal']],
+    nomecli:          [['nome','cli'], ['cliente']],
+    dav:              [['dav']],
+    tipodeseparacao:  [['tipo','separa']],
+    transp:           [['transp']]
+  };
 
-  function normalizeKey(s){
-    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  var resolvedMap = {}; // logicalName -> nome real da coluna nesta carga
+  var respColKey = '';  // nome real da 1ª coluna (letra de quem liberou o pedido)
+
+  function normalizeText(s){
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
   }
-  function buildFieldMap(fields){
-    fieldMap = {};
-    (fields || []).forEach(function(f){ fieldMap[normalizeKey(f)] = f; });
-    respColKey = (fields && fields[0]) || '';
+  function tokenize(s){ return normalizeText(s).split(' ').filter(Boolean); }
+  function tokenMatchesKeyword(token, keyword){
+    if (!token || !keyword) return false;
+    if (token === keyword) return true;
+    // trava de tamanho mínimo (3): nunca deixa uma célula curta tipo "T" ou "N" bater com nada
+    if (token.length >= 3 && keyword.indexOf(token) === 0) return true;
+    if (keyword.length >= 3 && token.indexOf(keyword) === 0) return true;
+    return false;
   }
-  function getField(row, normalizedName){
-    var real = fieldMap[normalizedName];
+  function cellSatisfiesRule(cellTokens, ruleSet){
+    return ruleSet.every(function(kw){ return cellTokens.some(function(t){ return tokenMatchesKeyword(t, kw); }); });
+  }
+  function resolveField(headerRow, logicalName){
+    var ruleSets = FIELD_RULES[logicalName] || [[logicalName]];
+    for (var i=0; i<headerRow.length; i++){
+      var toks = tokenize(headerRow[i]);
+      for (var r=0; r<ruleSets.length; r++){
+        if (cellSatisfiesRule(toks, ruleSets[r])) return headerRow[i];
+      }
+    }
+    return '';
+  }
+  function buildFieldMap(headerRow){
+    resolvedMap = {};
+    Object.keys(FIELD_RULES).forEach(function(k){ resolvedMap[k] = resolveField(headerRow, k); });
+    respColKey = headerRow[0] || '';
+  }
+  function getField(row, logicalName){
+    var real = resolvedMap[logicalName];
     return real ? (row[real] || '') : '';
   }
   function getResp(row){
     return respColKey ? (row[respColKey] || '').trim() : '';
   }
 
-  // A planilha tem linha(s) de banner/logo acima do cabeçalho real (ex: linha 1 = logo,
-  // linha 2 = em branco, linha 3 = RESP/STATUS/Hora Lib...). Em vez de assumir que a
-  // primeira linha do CSV é o cabeçalho, procuramos a linha que realmente contém
-  // "STATUS" e "Hora Lib" — funciona não importa quantas linhas de banner existam acima.
+  // A planilha tem linha(s) de banner/logo acima do cabeçalho real. Em vez de assumir
+  // que a primeira linha do CSV é o cabeçalho, procuramos a linha que tem uma coluna de
+  // status e uma coluna de liberação — funciona não importa quantas linhas de banner
+  // existam acima, e não importa o texto exato do cabeçalho.
   function findHeaderRowIndex(rows){
-    for (var i=0; i<Math.min(rows.length, 20); i++){
-      var normalizedCells = rows[i].map(normalizeKey);
-      if (normalizedCells.indexOf('status') !== -1 && normalizedCells.indexOf('horalib') !== -1){
+    for (var i=0; i<Math.min(rows.length, 25); i++){
+      if (resolveField(rows[i], 'status') && resolveField(rows[i], 'horalib')){
         return i;
       }
     }
@@ -399,7 +545,12 @@
   function rowsToObjects(raw){
     var headerIdx = findHeaderRowIndex(raw);
     if (headerIdx === -1){
-      throw new Error('Não encontrei a linha de cabeçalho (RESP/STATUS/Hora Lib) na planilha.');
+      var preview = raw.slice(0, 6).map(function(r, i){
+        return 'linha ' + (i+1) + ': ' + r.slice(0, 8).filter(function(c){ return c; }).join(' | ');
+      }).filter(function(l){ return l.indexOf(': ') !== l.length - 2; }).join('<br>');
+      var e = new Error('Não encontrei a linha de cabeçalho (uma coluna de STATUS e uma de liberação). Primeiras linhas lidas da planilha:<br>' + (preview || '(vazio)'));
+      e.isHeaderMiss = true;
+      throw e;
     }
     var headerRow = raw[headerIdx];
     buildFieldMap(headerRow);
@@ -440,6 +591,29 @@
     return { d: parseInt(m[1],10), m: parseInt(m[2],10) };
   }
 
+  // Constrói um objeto Date de verdade a partir de "DD/MM HH:MM" ou "DD/MM/AAAA HH:MM".
+  // Quando o ano não vem na célula, assume o ano atual — e corrige para o ano anterior
+  // se a data cair muito no futuro (virada de ano).
+  function parseFullDate(str, refDate){
+    if (!str) return null;
+    var m = String(str).trim().match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(\d{1,2}):(\d{2}))?/);
+    if (!m) return null;
+    var day = parseInt(m[1],10), month = parseInt(m[2],10);
+    var year;
+    if (m[3]){
+      year = parseInt(m[3],10);
+      if (year < 100) year += 2000;
+    } else {
+      year = refDate.getFullYear();
+      var candidate = new Date(year, month-1, day);
+      if (candidate.getTime() - refDate.getTime() > 20*24*3600000) year -= 1;
+    }
+    var hh = m[4] ? parseInt(m[4],10) : 0;
+    var mi = m[5] ? parseInt(m[5],10) : 0;
+    var d = new Date(year, month-1, day, hh, mi);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   function isToday(dm, today){
     return dm && dm.d === today.d && dm.m === today.m;
   }
@@ -449,7 +623,7 @@
 
   // ---------- STATE ----------
   var lastRows = [];
-  var buckets = { total: [], totalMes: [], sepHoje: [], sepMes: [], aguHoje: [], aguMes: [], fatHoje: [], fatMes: [] };
+  var buckets = { total: [], totalMes: [], sepHoje: [], sepMes: [], aguHoje: [], aguMes: [], fatHoje: [], fatMes: [], urgHoje: [], urgMes: [], urgAll: [], weeks: [] };
 
   function statusLabel(code){
     return { sep:'Em Separação', agu:'Aguardando', fat:'Faturado', out:'Sem status' }[code] || code;
@@ -459,11 +633,33 @@
     return '<span class="status-chip '+cls+'">'+statusLabel(code)+'</span>';
   }
 
+  // Constrói as últimas N semanas (segunda a domingo), a última sendo a semana atual (parcial, até agora)
+  function buildWeeks(refDate, weeksBack){
+    var day = refDate.getDay();
+    var diffToMonday = (day === 0 ? 6 : day - 1);
+    var mondayThisWeek = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate() - diffToMonday, 0, 0, 0);
+    var weeks = [];
+    for (var i = weeksBack - 1; i >= 0; i--){
+      var start = new Date(mondayThisWeek); start.setDate(start.getDate() - i * 7);
+      var end = new Date(start); end.setDate(end.getDate() + 6); end.setHours(23,59,59,999);
+      var isCurrent = (i === 0);
+      weeks.push({
+        start: start,
+        end: isCurrent ? refDate : end,
+        label: isCurrent ? 'esta semana' : (pad(start.getDate()) + '/' + pad(start.getMonth()+1) + '–' + pad(end.getDate()) + '/' + pad(end.getMonth()+1)),
+        count: 0,
+        current: isCurrent
+      });
+    }
+    return weeks;
+  }
+
   function computeBuckets(rows){
     var now = new Date();
     var today = { d: now.getDate(), m: now.getMonth()+1 };
+    var weeks = buildWeeks(now, 6);
 
-    var b = { total: [], totalMes: [], sepHoje: [], sepMes: [], aguHoje: [], aguMes: [], fatHoje: [], fatMes: [] };
+    var b = { total: [], totalMes: [], sepHoje: [], sepMes: [], aguHoje: [], aguMes: [], fatHoje: [], fatMes: [], urgHoje: [], urgMes: [], urgAll: [], weeks: weeks };
 
     rows.forEach(function(row){
       var st = inferStatus(row);
@@ -490,6 +686,30 @@
         var dmf = dmExp || dmConcl || dmLib;
         if (isToday(dmf, today)) b.fatHoje.push(row);
         if (isThisMonth(dmf, today)) b.fatMes.push(row);
+
+        // comparativo semanal: conta pela data de expedição/faturamento (data completa, com ano)
+        var dFull = parseFullDate(getField(row,'horaexp'), now) || parseFullDate(getField(row,'horaconcl'), now) || parseFullDate(getField(row,'horalib'), now);
+        if (dFull){
+          for (var w=0; w<weeks.length; w++){
+            if (dFull >= weeks[w].start && dFull <= weeks[w].end){ weeks[w].count++; break; }
+          }
+        }
+      }
+
+      // urgentes: "Em Separação"/"Aguardando" parado há mais de THRESHOLD_HOURS sem avançar
+      if (st === 'sep' || st === 'agu'){
+        var refFull = st === 'sep'
+          ? parseFullDate(getField(row,'horalib'), now)
+          : (parseFullDate(getField(row,'horaconcl'), now) || parseFullDate(getField(row,'horalib'), now));
+        if (refFull){
+          var hours = (now.getTime() - refFull.getTime()) / 3600000;
+          if (hours > THRESHOLD_HOURS){
+            row.__hoursStuck = hours;
+            b.urgAll.push(row);
+            if (isToday(dmLib, today)) b.urgHoje.push(row);
+            if (isThisMonth(dmLib, today)) b.urgMes.push(row);
+          }
+        }
       }
     });
 
@@ -509,7 +729,58 @@
     document.getElementById('fatHoje').textContent = buckets.fatHoje.length;
     document.getElementById('fatMes').textContent = buckets.fatMes.length;
 
+    // Notas Fiscais reaproveita a mesma contagem de "Faturado" (1 pedido faturado = 1 NF)
+    document.getElementById('nfMes').textContent = buckets.fatMes.length;
+    document.getElementById('nfHoje').textContent = buckets.fatHoje.length;
+
+    document.getElementById('urgHoje').textContent = buckets.urgHoje.length;
+    document.getElementById('urgMes').textContent = buckets.urgMes.length;
+
     document.getElementById('totalRowsNote').textContent = lastRows.length + ' linha(s) carregada(s) da planilha';
+
+    renderChart(buckets.weeks);
+    renderAttention(buckets);
+  }
+
+  function renderChart(weeks){
+    var maxVal = Math.max.apply(null, weeks.map(function(w){ return w.count; }).concat([1]));
+    document.getElementById('chartBars').innerHTML = weeks.map(function(w){
+      var pct = Math.max(Math.round((w.count / maxVal) * 100), w.count > 0 ? 6 : 2);
+      return '<div class="chart-col' + (w.current ? ' current' : '') + '">' +
+        '<div class="chart-bar-wrap">' +
+          '<div class="chart-val">' + w.count + '</div>' +
+          '<div class="chart-bar" style="height:' + pct + '%"></div>' +
+        '</div>' +
+        '<div class="chart-lbl">' + w.label + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderAttention(b){
+    var lines = [];
+    if (b.urgAll.length === 0){
+      lines.push({ cls:'ok', text:'Nenhum pedido parado há mais de ' + THRESHOLD_HOURS + 'h — tudo em dia.' });
+    } else {
+      lines.push({ cls:'crit', text: b.urgAll.length + ' pedido(s) parado(s) há mais de ' + THRESHOLD_HOURS + 'h sem avançar.' });
+      var oldest = b.urgAll.reduce(function(acc, cur){ return (!acc || cur.__hoursStuck > acc.__hoursStuck) ? cur : acc; }, null);
+      if (oldest){
+        lines.push({ cls:'crit', text:'Mais antigo parado: ' + (getField(oldest,'nomecli') || '—') + ' — DAV ' + (getField(oldest,'dav') || '—') + ' — há ' + Math.round(oldest.__hoursStuck) + 'h.' });
+      }
+      var aguParados = b.urgAll.filter(function(r){ return r.__status === 'agu'; }).length;
+      if (aguParados > 0){
+        lines.push({ cls:'', text: aguParados + ' pedido(s) aguardando faturamento há mais de ' + THRESHOLD_HOURS + 'h.' });
+      }
+    }
+    var now = new Date();
+    var recentes = lastRows.filter(function(r){
+      var d = parseFullDate(getField(r,'horalib'), now);
+      return d && (now.getTime() - d.getTime()) <= 3 * 3600000;
+    }).length;
+    lines.push({ cls:'', text: recentes + ' pedido(s) liberado(s) nas últimas 3h.' });
+
+    document.getElementById('attentionList').innerHTML = lines.map(function(l){
+      return '<li class="' + l.cls + '">' + l.text + '</li>';
+    }).join('');
   }
 
   function setStatusDot(state){
@@ -556,12 +827,19 @@
       .catch(function(err){
         setStatusDot('err');
         document.getElementById('updatedText').textContent = 'falha ao atualizar';
-        showError(
-          '<strong>Não foi possível carregar a planilha.</strong><br>' +
-          'Verifique se: (1) este arquivo foi aberto fora do preview do Claude (ex: duplo clique no arquivo baixado), e ' +
-          '(2) a planilha está compartilhada como <code>Qualquer pessoa com o link → Leitor</code>.<br>' +
-          '<span style="color:#ffb4b4cc">Detalhe técnico: ' + (err && err.message ? err.message : err) + '</span>'
-        );
+        if (err && err.isHeaderMiss){
+          showError(
+            '<strong>A planilha carregou, mas não achei as colunas certas.</strong><br>' +
+            '<span style="font-family:monospace; font-size:0.92em; color:#ffcccc;">' + err.message + '</span>'
+          );
+        } else {
+          showError(
+            '<strong>Não foi possível carregar a planilha.</strong><br>' +
+            'Verifique se: (1) este arquivo foi aberto fora do preview do Claude (ex: duplo clique no arquivo baixado), e ' +
+            '(2) a planilha está compartilhada como <code>Qualquer pessoa com o link → Leitor</code>.<br>' +
+            '<span style="color:#ffb4b4cc">Detalhe técnico: ' + (err && err.message ? err.message : err) + '</span>'
+          );
+        }
       })
       .finally(function(){ isLoading = false; });
   }
@@ -609,6 +887,12 @@
   });
   document.getElementById('cardFaturado').addEventListener('click', function(){
     openModal('Faturado — Hoje + Mês', buckets.fatMes);
+  });
+  document.getElementById('cardNFs').addEventListener('click', function(){
+    openModal('Notas Fiscais — Este Mês', buckets.fatMes);
+  });
+  document.getElementById('cardUrgentes').addEventListener('click', function(){
+    openModal('Urgentes — parados há mais de ' + THRESHOLD_HOURS + 'h', buckets.urgAll);
   });
 
   // ---------- AUTO-REFRESH ----------
