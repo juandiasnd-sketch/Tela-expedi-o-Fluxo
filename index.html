@@ -167,7 +167,10 @@
   .sublabel{ font-size:clamp(11px, 0.6vw + 0.6vh, 18px); color:var(--text-dim); margin-top:6px; }
 
   .split{ display:flex; gap:clamp(10px, 1vw + 1vh, 42px); margin-top:0; align-items:center; }
-  .split .metric{ flex:1; min-width:0; }
+  .split .metric{ flex:1; min-width:0; cursor:pointer; border-radius:10px; padding:6px 4px; transition:background .15s ease, box-shadow .15s ease; }
+  .split .metric:hover{ background:rgba(255,255,255,.035); box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+  .hero-badge{ cursor:pointer; }
+  #cardNFs .bignum{ cursor:pointer; }
   .split .metric .val{ font-size:clamp(20px, 2.6vw + 2.6vh, 88px); font-weight:800; line-height:1; }
   .split .metric .lbl{ font-size:clamp(9.5px, 0.5vw + 0.5vh, 16px); color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; margin-top:6px;}
   .split .divider{ align-self:stretch; width:1px; background:var(--border); }
@@ -1274,24 +1277,52 @@
   document.getElementById('closeModal').addEventListener('click', function(){ overlay.classList.remove('open'); });
   overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.classList.remove('open'); });
 
-  document.getElementById('cardTotal').addEventListener('click', function(){
-    openModal('Total de Pedidos — Hoje + Mês', buckets.totalMes);
-  });
-  document.getElementById('cardSeparacao').addEventListener('click', function(){
-    openModal('Em Separação — Hoje + Mês', buckets.sepMes);
-  });
-  document.getElementById('cardAguardando').addEventListener('click', function(){
-    openModal('Aguardando — Hoje + Mês', buckets.aguMes);
-  });
-  document.getElementById('cardFaturado').addEventListener('click', function(){
-    openModal('Faturado — Hoje + Mês', buckets.fatMes);
-  });
-  document.getElementById('cardNFs').addEventListener('click', function(){
-    openModal('Notas Fiscais — Este Mês', buckets.fatMes);
-  });
-  document.getElementById('cardUrgentes').addEventListener('click', function(){
-    openModal('Urgentes — parados há mais de ' + THRESHOLD_HOURS + 'h', buckets.urgAll);
-  });
+  // Cada numero do painel abre EXATAMENTE o mesmo conjunto usado para formar aquele total.
+  // Assim, se o card mostra 12 HOJE, a lista abre 12 linhas; se mostra 39 ESTE MES, abre 39 linhas.
+  function bindMetricClick(valueId, title, bucketKey){
+    var el = document.getElementById(valueId);
+    if (!el) return;
+    var target = el.closest('.metric') || el;
+    target.addEventListener('click', function(e){
+      e.stopPropagation();
+      openModal(title, buckets[bucketKey] || []);
+    });
+  }
+
+  bindMetricClick('totalHoje', 'Total de Pedidos — Hoje', 'total');
+  bindMetricClick('totalMes', 'Total de Pedidos — Este Mês', 'totalMes');
+  bindMetricClick('sepHoje', 'Em Separação — Hoje', 'sepHoje');
+  bindMetricClick('sepMes', 'Em Separação — Este Mês', 'sepMes');
+  bindMetricClick('aguHoje', 'Aguardando — Hoje', 'aguHoje');
+  bindMetricClick('aguMes', 'Aguardando — Este Mês', 'aguMes');
+  bindMetricClick('fatHoje', 'Faturado — Hoje', 'fatHoje');
+  bindMetricClick('fatMes', 'Faturado — Este Mês', 'fatMes');
+  bindMetricClick('urgHoje', 'Urgentes — Hoje', 'urgHoje');
+  bindMetricClick('urgMes', 'Urgentes — Este Mês', 'urgMes');
+
+  // Notas fiscais: numero grande = mes; selo "hoje" = hoje.
+  var nfMesEl = document.getElementById('nfMes');
+  if (nfMesEl){
+    (nfMesEl.closest('.bignum') || nfMesEl).addEventListener('click', function(e){
+      e.stopPropagation();
+      openModal('Notas Fiscais — Este Mês', buckets.fatMes);
+    });
+  }
+  var nfHojeEl = document.getElementById('nfHoje');
+  if (nfHojeEl){
+    (nfHojeEl.closest('.hero-badge') || nfHojeEl).addEventListener('click', function(e){
+      e.stopPropagation();
+      openModal('Notas Fiscais — Hoje', buckets.fatHoje);
+    });
+  }
+
+  // Clique no restante do card abre o total mensal mostrado no proprio card.
+  document.getElementById('cardTotal').addEventListener('click', function(){ openModal('Total de Pedidos — Este Mês', buckets.totalMes); });
+  document.getElementById('cardSeparacao').addEventListener('click', function(){ openModal('Em Separação — Este Mês', buckets.sepMes); });
+  document.getElementById('cardAguardando').addEventListener('click', function(){ openModal('Aguardando — Este Mês', buckets.aguMes); });
+  document.getElementById('cardFaturado').addEventListener('click', function(){ openModal('Faturado — Este Mês', buckets.fatMes); });
+  document.getElementById('cardNFs').addEventListener('click', function(){ openModal('Notas Fiscais — Este Mês', buckets.fatMes); });
+  document.getElementById('cardUrgentes').addEventListener('click', function(){ openModal('Urgentes — Este Mês', buckets.urgMes); });
 
   // ---------- AUTO-REFRESH ----------
   load();
