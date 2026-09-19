@@ -1315,25 +1315,38 @@
 
   function renderAttention(b){
     var lines = [];
-    if (b.urgAll.length === 0){
-      lines.push({ cls:'ok', text:'Nenhum pedido parado há mais de ' + THRESHOLD_HOURS + 'h — tudo em dia.' });
+    var now = new Date();
+
+    // PONTOS DE ATENÇÃO: considerar somente registros do mês atual.
+    // Isso evita que pendências antigas de meses/anos anteriores apareçam no painel.
+    var urgentesMes = b.urgMes || [];
+
+    if (urgentesMes.length === 0){
+      lines.push({ cls:'ok', text:'Nenhum pedido deste mês parado há mais de ' + THRESHOLD_HOURS + 'h — tudo em dia.' });
     } else {
-      lines.push({ cls:'crit', text: b.urgAll.length + ' pedido(s) parado(s) há mais de ' + THRESHOLD_HOURS + 'h sem avançar.' });
-      var oldest = b.urgAll.reduce(function(acc, cur){ return (!acc || cur.__hoursStuck > acc.__hoursStuck) ? cur : acc; }, null);
+      lines.push({ cls:'crit', text: urgentesMes.length + ' pedido(s) deste mês parado(s) há mais de ' + THRESHOLD_HOURS + 'h sem avançar.' });
+
+      var oldest = urgentesMes.reduce(function(acc, cur){
+        return (!acc || cur.__hoursStuck > acc.__hoursStuck) ? cur : acc;
+      }, null);
       if (oldest){
-        lines.push({ cls:'crit', text:'Mais antigo parado: ' + (getField(oldest,'nomecli') || '—') + ' — DAV ' + (getField(oldest,'dav') || '—') + ' — há ' + Math.round(oldest.__hoursStuck) + 'h.' });
+        lines.push({ cls:'crit', text:'Mais antigo parado deste mês: ' + (getField(oldest,'nomecli') || '—') + ' — DAV ' + (getField(oldest,'dav') || '—') + ' — há ' + Math.round(oldest.__hoursStuck) + 'h.' });
       }
-      var aguParados = b.urgAll.filter(function(r){ return r.__status === 'agu'; }).length;
+
+      var aguParados = urgentesMes.filter(function(r){ return r.__status === 'agu'; }).length;
       if (aguParados > 0){
-        lines.push({ cls:'', text: aguParados + ' pedido(s) aguardando faturamento há mais de ' + THRESHOLD_HOURS + 'h.' });
+        lines.push({ cls:'', text: aguParados + ' pedido(s) deste mês aguardando faturamento há mais de ' + THRESHOLD_HOURS + 'h.' });
       }
     }
-    var now = new Date();
+
+    // Liberações recentes: somente registros de HOJE.
     var recentes = lastRows.filter(function(r){
       var d = parseFullDate(getField(r,'horalib'), now);
-      return d && (now.getTime() - d.getTime()) <= 3 * 3600000;
+      if (!d || !isTodayDate(d, now)) return false;
+      var diff = now.getTime() - d.getTime();
+      return diff >= 0 && diff <= 3 * 3600000;
     }).length;
-    lines.push({ cls:'', text: recentes + ' pedido(s) liberado(s) nas últimas 3h.' });
+    lines.push({ cls:'', text: recentes + ' pedido(s) de hoje liberado(s) nas últimas 3h.' });
 
     document.getElementById('attentionList').innerHTML = lines.map(function(l){
       return '<li class="' + l.cls + '">' + l.text + '</li>';
